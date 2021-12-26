@@ -1,5 +1,16 @@
+# TODO:
+#   work out how to make this more efficient for 12.5k size file.
+#   fix printing:
+#       when 1 option left
+#       when a few options left, print them out, otherwise dont
+#       print top (3? 5?) words and their entropies.
+#       when 0 possible words
+
 from collections import Counter
 import numpy as np
+import logging
+import pickle
+import time
 
 class Wordle:
     def __init__(self):
@@ -16,12 +27,20 @@ class Wordle:
                 self.wordlist.append(line[:5])
         self.wordset = set(self.wordlist)
         self.wordlist = self.wordlist # [:100]
-        self.guess_answer = []
-        for i, guess in enumerate(self.wordlist):
-            self.guess_answer.append(dict())
-            for answer in self.wordset:
-                self.guess_answer[i][answer] = self.compute_score(guess, answer)
- 
+        tic = time.perf_counter()
+        try:
+            self.guess_answer = self.load(self.save_dest)
+            print("loaded saved file")
+        except Exception:
+            self.guess_answer = []
+            for i, guess in enumerate(self.wordlist):
+                self.guess_answer.append(dict())
+                for answer in self.wordset:
+                    self.guess_answer[i][answer] = self.compute_score(guess, answer)
+            print("unable to load file. Saving for next time.")
+            self.save(self.save_dest)
+        print(time.perf_counter() - tic)
+
     def compute_score(self, guess, answer) -> str:
         score = ''
         num = 0
@@ -78,6 +97,15 @@ class Wordle:
             else:
                 print('invalid score')
         self.wordset =  wordset_restricted
+
+    def save(self, destination) -> None:
+        with open(destination, mode="wb") as f:
+            pickle.dump(self.guess_answer, f, protocol=pickle.HIGHEST_PROTOCOL)
+ 
+    def load(self, source) -> list:
+        with open(source, mode="rb") as f:
+            result = pickle.load(f)
+            return result
 
 
 def main():
