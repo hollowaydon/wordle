@@ -1,10 +1,8 @@
 # TODO:
-#   work out how to make this more efficient for 12.5k size file.
-#   fix printing:
-#       when 1 option left
-#       when a few options left, print them out, otherwise dont
-#       print top (3? 5?) words and their entropies.
-#       when 0 possible words
+#   work out how to save the guess-answer table.
+#   as a dictionary with keys (guess, answer), this is takes up too much memory to run on the whole 12.5k words
+#   as a list of dictionaries, one for each guess, it runs in about 30 minutes, but is too big to pickle (about 1.2 GB)
+#   maybe save as a numpy array, save as a big csv. Would have to change all sets to lists/arrays.
 
 from collections import Counter
 import numpy as np
