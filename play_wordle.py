@@ -42,6 +42,7 @@ def main():
         wordle = Wordle(False)
     else:
         wordle = Wordle(True)
+        # TODO: IS THIS RIGHT? IS THERE SOMETHIGN ELSE I HAVE TO DO TO GET THIS BIT CORRECT???????
 
     # wordle = Wordle(False)
     for i in range(6):
