@@ -1,8 +1,9 @@
 # TODO:
 #   work out how to save the guess-answer table.
 #   as a dictionary with keys (guess, answer), this is takes up too much memory to run on the whole 12.5k words
-#   as a list of dictionaries, one for each guess, it runs in about 30 minutes, but is too big to pickle (about 1.2 GB)
+#   as a list of dictionaries, one for each guess, it runs in about 30 minutes, but is too big to pickle (about 1.13 GB)
 #   maybe save as a numpy array, save as a big csv. Would have to change all sets to lists/arrays.
+# wordle.py still runs into memory issues with it's list of dicts if too many other programs are running.
 
 from collections import Counter
 import numpy as np

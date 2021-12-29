@@ -24,17 +24,17 @@ class Wordle:
  
     def compute_score(self, guess, answer) -> str:
         score = ''
-        num = 0
+        # num = 0
         for i in range(self.word_len):
             if guess[i] not in answer:
                 score += '0'
-                num += 0 * (3**(4 - i))
+                # num += 0 * (3**(4 - i))
             elif guess[i] == answer[i]:
                 score += '2'
-                num += 2 * (3**(4 - i))
+                # num += 2 * (3**(4 - i))
             else:
                 score += '1'
-                num += 1 * (3**(4 - i))
+                # num += 1 * (3**(4 - i))
         return score
 
 
