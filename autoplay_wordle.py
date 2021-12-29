@@ -1,27 +1,31 @@
-from wordle_improved import Wordle
+from wordle_improved import Wordle, parse_args
 from collections import Counter
 import time
 
 def main():
+    args = parse_args()
     tic = time.perf_counter()
     solutions = []
 
-    with open('sow_pods_5.txt') as f:
+    with open(args.play_file) as f:
         for line in f:
-            solutions.append(line[:5])
-
-    solutions = solutions[:10]
+            solutions.append(line[:args.len])
     
     all_guesses = []
     for solution in solutions:
-        wordle = Wordle(False)
-        no_guesses = 0 # how many guesses have been made?
-        guess = '-1' # guess for initial while check. a dumb and bad guess
+        wordle = Wordle(compute_table=False,
+                        word_len=args.len,
+                        wordfile=args.wordfile,
+                        first_dict_file=args.first_dict_file,
+                        second_dict_file=args.second_dict_file)
+
+        no_guesses = 0 # how many guesses have been made so far?
+        guess = '' # initalise an incorrect guess for initial while check
         g_a_table_done = False # keep track of once the guess answer table has been computed.
         while guess != solution:
             no_guesses += 1
             if len(wordle.wordset) <= 0:
-                print('uh oh, something went wrong')
+                print('uh oh, no remaining words to guess')
                 break
 
             elif len(wordle.wordset) == 1:
@@ -32,14 +36,14 @@ def main():
                     guess = max(wordle.first_guess, key=wordle.first_guess.get)
                     # guess should be 'tares'
                 else:
-                    print('generate on first guess')
+                    # print('generate on first guess')
                     wordle.compute_guess_answer_table()
                     g_a_table_done = True
                     guess_dict = wordle.compute_best_guess()
                     guess = max(guess_dict, key=guess_dict.get)
 
                 score = wordle.compute_score(guess, solution)
-                wordle.restrict_wordset('tares', score)
+                wordle.restrict_wordset(guess, score)
 
             elif no_guesses == 2:
                 if wordle.second_guess_dict_exists:
@@ -47,7 +51,7 @@ def main():
                     guess = max(guess_dict, key=guess_dict.get)
                 else:
                     if not g_a_table_done:
-                        print('generate on second guess')
+                        # print('generate on second guess')
                         wordle.compute_guess_answer_table()
                     guess_dict = wordle.compute_best_guess()
                     guess = max(guess_dict, key=guess_dict.get)
@@ -59,7 +63,7 @@ def main():
                 score = wordle.compute_score(guess, solution)
                 wordle.restrict_wordset(guess, score)
                 if not g_a_table_done:
-                    print('generate on third guess')
+                    # print('generate on third guess')
                     wordle.compute_guess_answer_table()
 
             else:

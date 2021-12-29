@@ -1,27 +1,35 @@
+import argparse
 from collections import Counter
-import numpy as np
 import pickle
+from itertools import product
+try:
+    import numpy as np
+    np_available = True
+except ImportError:
+    print("numpy couldn't be loaded. install numpy for improved performance.")
+    np_available = False
+    import math
 
 class Wordle:
-    def __init__(self, compute_table = True):
-        self.word_len = 5
+    def __init__(self, compute_table=True, word_len=5, wordfile="sow_pods_5.txt", first_dict_file="first_guess.pickle", second_dict_file="second_guess.pickle"):
+        self.word_len = word_len
         self.k = 5 # top k words to recall
         # self.save_dest = r"guess_answer.pickle"
         self.wordlist = []
         i = 0
-        with open('sow_pods_5.txt') as f:
+        with open(wordfile) as f:
             for line in f:
                 i += 1
                 # if i > 500:
                     # break
-                self.wordlist.append(line[:5])
+                self.wordlist.append(line[:self.word_len])
         self.wordset = set(self.wordlist)
         self.wordlist = self.wordlist # [:100]
 
         # load dictionary of best first guesses.
         self.first_guess_dict_exists = True
         try:
-            with open('first_guess.pickle', 'rb') as f:
+            with open(first_dict_file, 'rb') as f:
                 self.first_guess = pickle.load(f)
         except:
             print('no first guess file found')
@@ -30,7 +38,7 @@ class Wordle:
         # load dictionary of best second guesses for each score for first guess.
         self.second_guess_dict_exists = True
         try:
-            with open('second_guess.pickle', 'rb') as f:
+            with open(second_dict_file, 'rb') as f:
                 self.second_guess = pickle.load(f)
         except:
             print('no second guess file found')
@@ -78,8 +86,15 @@ class Wordle:
                     guess_dict[guess].append(self.guess_answer[i][answer])
 
             # compute entropy sum_i p_i log(p_i)
-            probs = np.array(list(Counter(guess_dict[guess]).values()))  / len(self.wordset)
-            H = -1 * np.sum(np.log(probs) * probs)
+            score_frequencies = list(Counter(guess_dict[guess]).values())
+            n_answers = len(self.wordset)
+            # if numpy is available, this will run faster.
+            if np_available:
+                probs = np.array(score_frequencies)  / n_answers
+                H = -1 * np.sum(np.log(probs) * probs)
+            else:
+                H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies])
+
 
             # store the top k words and entropies 
             if len(top_k_H) < self.k:
@@ -101,38 +116,83 @@ class Wordle:
             if score[i] == '0':
                 wordset_restricted = {w for w in wordset_restricted if word[i] not in w}
             elif score[i] == '1':
-                # print(i)
-                # print(word[i])
                 wordset_restricted = {w for w in wordset_restricted if ((w[i] != word[i]) & (word[i] in w))}
             elif score[i] == '2':
                 wordset_restricted = {w for w in wordset_restricted if w[i] == word[i]}
             else:
-                print('invalid score')
+                print('error in restrict wordset: invalid score')
         self.wordset =  wordset_restricted
 
 
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "-l",
+        "--len",
+        type=int,
+        default=5,
+        help="the length of the word that is being guessed."
+    )
+    parser.add_argument(
+        "-w",
+        "--wordfile",
+        type=str,
+        default="sow_pods_5.txt",
+        help="file containing all possible words of appropriate length."
+    )
+    parser.add_argument(
+        "-f",
+        "--first_dict_file",
+        type=str,
+        default="first_guess.pickle",
+        help="filename for location to save dictionary of the best first words to guess"
+    )
+    parser.add_argument(
+        "-s",
+        "--second_dict_file",
+        type=str,
+        default="second_guess.pickle",
+        help="filename for location to save dictionary of the best second words to guess"
+    )
+    parser.add_argument(
+        "-p",
+        "--play_file",
+        type=str,
+        default="sow_pods_5.txt",
+        help="file with all words to use a solutions for autoplay"
+    )
+    args = parser.parse_args()
+    return args
+
+
 def main():
+    args = parse_args()
     # first, get the top 5 answers for the first guess. The best of these should be 'tares'
-    wordle = Wordle(True)
+    wordle = Wordle(compute_table=True,
+                    word_len=args.len,
+                    wordfile=args.wordfile,
+                    first_dict_file=args.first_dict_file,
+                    second_dict_file=args.second_dict_file)
+
     first_guess = wordle.compute_best_guess()
 
     # pickle the dictionary
-    with open('first_guess.pickle', 'wb') as f:
+    with open(args.first_dict_file, 'wb') as f:
         pickle.dump(first_guess, f)
 
     # this program works out the best second guess after we have already guessed 'tares' for each of the 243 possible scores we could get for 'tares'.
-    score_vals = ['0', '1', '2']
-    scores = []
-    for a in score_vals:
-        for b in score_vals:
-            for c in score_vals:
-                for d in score_vals:
-                    for e in score_vals:
-                        scores.append(f"{a}{b}{c}{d}{e}")
+    scores = ["".join(x) for x in product('012', repeat = args.len)]
     second_guess = {}
     for i, score in enumerate(scores):
-        wordle = Wordle(False)
-        wordle.restrict_wordset('tares', score)
+        wordle = Wordle(compute_table=False,
+                    word_len=args.len,
+                    wordfile=args.wordfile,
+                    first_dict_file=args.first_dict_file,
+                    second_dict_file=args.second_dict_file)
+
+        best_first = max(first_guess, key=first_guess.get)
+        wordle.restrict_wordset(best_first, score)
         if not wordle.wordset:
             second_guess[score] = "no words match"
         elif len(wordle.wordset) == 1:
@@ -141,12 +201,12 @@ def main():
             wordle.compute_guess_answer_table()
             top_words = wordle.compute_best_guess()
             second_guess[score] = top_words
-        print(score)
-        print(str(second_guess[score]))
+        # print(score)
+        # print(str(second_guess[score]))
+
     # pickle the dictionary
-    with open('second_guess.pickle', 'wb') as f:
+    with open(args.second_dict_file, 'wb') as f:
         pickle.dump(second_guess, f)
- 
 
 
 if __name__ == '__main__':
