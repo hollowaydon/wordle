@@ -1,7 +1,3 @@
-
-
-
-# generate sowpods words that only have 5 letters.
 five_letters = []
 with open('sowpods.txt') as f:
     for line in f:
@@ -10,10 +6,5 @@ with open('sowpods.txt') as f:
             five_letters.append(word)
             # print(word)
 
-
-
 with open('sow_pods_5.txt', 'w') as f:
     f.write('\n'.join(five_letters))
-
-
-
