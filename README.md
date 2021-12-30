@@ -1,9 +1,9 @@
 # wordle
 
 ## arguments you can pass to wordle:
-**--len / -l**
+    **--len / -l**
 
-    The length of the word you are trying to guess. By default 5.
+The length of the word you are trying to guess. By default 5.
 
 **--wordfile / -w**
 
