@@ -2,11 +2,13 @@
 
 ## arguments you can pass to wordle:
 **Length option**
+
     --len / -l
 
 The length of the word you are trying to guess. By default 5.
 
 **Wordfile option**
+
     --wordfile / -w
 
 Filename for the file that contains all possible words, one per row. sow_pods_5.txt by default.
