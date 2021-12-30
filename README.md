@@ -1,21 +1,25 @@
 # wordle
 
 ## arguments you can pass to wordle:
-- **--len / -l**
+**--len / -l**
 
     The length of the word you are trying to guess. By default 5.
 
-- **--wordfile / -w**
-filename for the file that contains all possible words, one per row. sow_pods_5.txt by default.
+**--wordfile / -w**
 
-- **--first_dict_file / -f**
-filename for where to save/load the pickle file that contains the best first guess. first_guess.pickle by default.
+    filename for the file that contains all possible words, one per row. sow_pods_5.txt by default.
 
-- **--second_dict_file / -s**
-filename for where to save/load the pickle file that contains the best second guess, given that the first guess was the best first guess in first_dict_file. second_guess.pickle by default.
+**--first_dict_file / -f**
 
-- **--play_file / -p**
-Only used by autoplay_wordle. list of words like wordfile that contains all the words you want autoplay_wordle to play. sow_pods_5.txt by default.
+    filename for where to save/load the pickle file that contains the best first guess. first_guess.pickle by default.
+
+**--second_dict_file / -s**
+
+    filename for where to save/load the pickle file that contains the best second guess, given that the first guess was the best first guess in first_dict_file. second_guess.pickle by default.
+
+**--play_file / -p**
+
+    Only used by autoplay_wordle. list of words like wordfile that contains all the words you want autoplay_wordle to play. sow_pods_5.txt by default.
 
 ## wordle_imporoved
 This file contains the wordle class. Running this file will precompute some options for the best first and second words to guess. Note: the best second word is only based on you guessing the best first word as your first guess.
