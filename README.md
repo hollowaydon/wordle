@@ -12,18 +12,21 @@ The length of the word you are trying to guess. By default 5.
     --wordfile / -w
 
 Filename for the file that contains all possible words, one per row. sow_pods_5.txt by default.
+sowpods_4.txt contains all 4 letter words if you want to play on that instead.
 
 **Best first word options file**
 
     --first_dict_file / -f
 
 Filename for where to save/load the pickle file that contains the best first guess. first_guess.pickle by default.
+first_4.pickle is precomputed for sowpods_4.txt.
 
 **Best second word options file**
 
     --second_dict_file / -s
     
 Filename for where to save/load the pickle file that contains the best second guess, given that the first guess was the best first guess in first_dict_file. second_guess.pickle by default.
+second_4.pickle is precomputed for sowpods_4.txt.
 
 **Autoplay word list file**
 
