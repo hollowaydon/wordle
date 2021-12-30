@@ -2,7 +2,8 @@
 
 ## arguments you can pass to wordle:
 - **--len / -l**
-The length of the word you are trying to guess. By default 5.
+
+    The length of the word you are trying to guess. By default 5.
 
 - **--wordfile / -w**
 filename for the file that contains all possible words, one per row. sow_pods_5.txt by default.
