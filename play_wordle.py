@@ -20,7 +20,11 @@ def valid_score(score, length):
             return False
     return True
 
-def get_input(length):
+def get_input(length, k, top_k_dict):
+    print(f"the best {k} options to guess are:")
+    for key in sorted(top_k_dict, key = top_k_dict.get, reverse=True):
+        print(f"'{key}' with entropy: {top_k_dict[key] : .4f} bits")
+
     word = input('enter a word:')
     while len(word) != length:
         print("the word you entered isn't the right length. try again.")
@@ -34,39 +38,21 @@ def get_input(length):
 
 def main():
     args = parse_args()
-    # print("are you playing on sowpods with word length 5?")
-    # print("If you aren't, we'll have to do some computations. takes about 10 mins on my lapop.")
-    # speedup = input("play on sowpods len 5? (y/n)")
-    # if speedup == 'y' or speedup == "Y":
     wordle = Wordle(compute_table=False,
                     word_len=args.len,
                     wordfile=args.wordfile,
                     first_dict_file=args.first_dict_file,
                     second_dict_file=args.second_dict_file)
 
-    # else:
-    #     wordle = Wordle(compute_table=True,
-    #                     word_len=args.len,
-    #                     wordfile=args.wordfile,
-    #                     first_dict_file=args.first_dict_file,
-    #                     second_dict_file=args.second_dict_file)
-
-        # TODO: IS THIS RIGHT? IS THERE SOMETHIGN ELSE I HAVE TO DO TO GET THIS BIT CORRECT???????
-
-    # wordle = Wordle(False)
     for i in range(6):
         if i == 0:
-            if wordle.first_guess_dict_exists:
+            if wordle.first_guess:
                 top_k_dict = wordle.first_guess
             else:
                 wordle.compute_guess_answer_table()
                 top_k_dict = wordle.compute_best_guess()
-
-            print(f"the best {wordle.k} options to guess are:")
-            for key in sorted(top_k_dict, key = top_k_dict.get, reverse=True):
-                print(f"'{key}' with entropy: {top_k_dict[key] : .4f} bits")
             
-            word, score = get_input(args.len)
+            word, score = get_input(args.len, wordle.k, top_k_dict)
             if score == '2' * wordle.word_len:
                 print(f'yahoo! you solved the wordle in 1 guess!')
                 break
@@ -78,17 +64,13 @@ def main():
 
         elif i == 1:
             best_first = max(wordle.first_guess, key=wordle.first_guess.get)
-            if word == best_first and wordle.second_guess_dict_exists:
+            if word == best_first and wordle.second_guess:
                 top_k_dict = wordle.second_guess[score]
             else:
                 wordle.compute_guess_answer_table()
                 top_k_dict = wordle.compute_best_guess()
 
-            print(f"the best {wordle.k} options to guess are:")
-            for key in sorted(top_k_dict, key = top_k_dict.get, reverse=True):
-                print(f"'{key}' with entropy: {top_k_dict[key] : .4f} bits")
-            
-            word, score = get_input(args.len)            
+            word, score = get_input(args.len, wordle.k, top_k_dict)
             if score == '2' * wordle.word_len:
                 print(f'yahoo! you solved the wordle in 2 guesses!')
                 break
@@ -102,10 +84,7 @@ def main():
         else:
             if len(wordle.wordset) > 1:
                 top_k_dict = wordle.compute_best_guess()
-                print(f"the best {wordle.k} options to guess are:")
-                for key in sorted(top_k_dict, key = top_k_dict.get, reverse=True):
-                    print(f"'{key}' with entropy: {top_k_dict[key] : .4f} bits")
-                word, score = get_input(args.len)
+                word, score = get_input(args.len, wordle.k, top_k_dict)
                 if i == 5 and score != '2' * wordle.word_len:
                     print('oh man! you ran out of guesses')
                 if score == '2' * wordle.word_len:
@@ -116,7 +95,7 @@ def main():
                 if len(wordle.wordset) == 0:
                     break
             elif len(wordle.wordset) == 1:
-                word, score = get_input(args.len)
+                word, score = get_input(args.len, wordle.k, top_k_dict)
                 if i == 5 and score != '2' * wordle.word_len:
                     print('oh man! you ran out of guesses')
                     break

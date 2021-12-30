@@ -27,22 +27,18 @@ class Wordle:
         self.wordlist = self.wordlist # [:100]
 
         # load dictionary of best first guesses.
-        self.first_guess_dict_exists = True
         try:
             with open(first_dict_file, 'rb') as f:
                 self.first_guess = pickle.load(f)
         except:
             print('no first guess file found')
-            self.first_guess_dict_exists = False
 
         # load dictionary of best second guesses for each score for first guess.
-        self.second_guess_dict_exists = True
         try:
             with open(second_dict_file, 'rb') as f:
                 self.second_guess = pickle.load(f)
         except:
             print('no second guess file found')
-            self.second_guess_dict_exists = False
 
         self.guess_answer = []
         if compute_table:
