@@ -18,7 +18,7 @@ sowpods_4.txt contains all 4 letter words if you want to play on that instead.
 
     --first_dict_file / -f
 
-Filename for where to save/load the pickle file that contains the best first guess. first_guess.pickle by default.
+Filename for where to save/load the pickle file that contains the best first guess (since that is always the same, and takes the longest to compute). first_guess.pickle by default.
 first_4.pickle is precomputed for sowpods_4.txt.
 
 **Best second word options file**
