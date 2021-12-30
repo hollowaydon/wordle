@@ -1,28 +1,12 @@
-
-done	get dict for first word
-
-
-done	fix up '22222' to match len in Wordle init
-	add len as a command line --length / -l option.
-
-
-done	clean up printing for the game: make more consistent
-	add options for start of game - recompute from first word or not.
-
-	how do I know if first_dict and second_dict refer to sowpods len 5 or something else?
-
-	remove reliance on numpy
-	
-	write a readme for github
-
-	git push
-
-
 done	add check: if first word is tares, then do lookup, otherwise recompute
 done	add check: "that doesn't look right" for input statements
+done	get dict for first word
+done	fix up '22222' to match len in Wordle init
+done	clean up printing for the game: make more consistent
+done	add len as a command line --length / -l option. See NLP HW for examples
+done	how do I know if first_dict and second_dict refer to sowpods len 5 or something else?
 
-
-	ask jet/bryn for suggestions for features.
-
+X	add options for start of game - recompute from first word or not.
+x	remove reliance on numpy
 
 	hard mode
