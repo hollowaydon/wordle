@@ -42,7 +42,8 @@ def main():
                     word_len=args.len,
                     wordfile=args.wordfile,
                     first_dict_file=args.first_dict_file,
-                    second_dict_file=args.second_dict_file)
+                    second_dict_file=args.second_dict_file,
+                    weight=None)
 
     for i in range(6):
         if i == 0:

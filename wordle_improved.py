@@ -11,21 +11,30 @@ except ImportError:
     import math
 
 class Wordle:
-    def __init__(self, compute_table=True, word_len=5, wordfile="sow_pods_5.txt", first_dict_file="first_guess.pickle", second_dict_file="second_guess.pickle"):
+    def __init__(self,
+                 compute_table=True,
+                 word_len=5,
+                 wordfile="sow_pods_5.txt",
+                 first_dict_file="first_guess.pickle",
+                 second_dict_file="second_guess.pickle",
+                 weight=None):
         self.word_len = word_len
-        self.k = 5 # top k words to recall
-        # self.save_dest = r"guess_answer.pickle"
+        self.k = 20 # top k words to recall
+        # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
         self.wordlist = []
-        i = 0
         with open(wordfile) as f:
             for line in f:
-                i += 1
-                # if i > 500:
-                    # break
                 self.wordlist.append(line[:self.word_len])
         self.wordset = set(self.wordlist)
         self.wordlist = self.wordlist # [:100]
 
+        # generate weights for each word: all weights start at 1.
+        if weight is None:
+            self.weights = dict.fromkeys(self.wordlist, 1)
+        else:
+            with open(weight, 'rb') as f:
+                self.weights = pickle.load(f)
+            
         # load dictionary of best first guesses.
         try:
             with open(first_dict_file, 'rb') as f:
@@ -43,6 +52,7 @@ class Wordle:
         self.guess_answer = []
         if compute_table:
             self.compute_guess_answer_table()
+
     
 
     def compute_guess_answer_table(self):
@@ -71,26 +81,29 @@ class Wordle:
     def compute_best_guess(self) -> dict:
         # for each guess, loop over possible solutions to work out which guess gives the most information
         guess_dict = dict()
-        top_k_H = {'-1':0}
-        # best_H = 0
-        # best_guess = -1
+        top_k_H = {'-1':0} # TODO: remove this I think? don't need this default value for testing any more, but check.
         for i, guess in enumerate(self.wordlist):
+            score_frequencies = Counter()
+            n_answers = 0
             for answer in self.wordset:
                 if guess not in guess_dict.keys():
                     guess_dict[guess] = [self.guess_answer[i][answer]]
                 else:
                     guess_dict[guess].append(self.guess_answer[i][answer])
+                # add up each score by its weight according to the loaded weights for each answer.
+                score_frequencies.update({self.guess_answer[i][answer]: self.weights[answer]})
+                n_answers += self.weights[answer]
 
+            score_frequencies = list(score_frequencies.values())
             # compute entropy sum_i p_i log(p_i)
-            score_frequencies = list(Counter(guess_dict[guess]).values())
-            n_answers = len(self.wordset)
+            # score_frequencies = list(Counter(guess_dict[guess]).values())
+            # n_answers = len(self.wordset)
             # if numpy is available, this will run faster.
             if np_available:
                 probs = np.array(score_frequencies)  / n_answers
-                H = -1 * np.sum(np.log(probs) * probs)
+                H = -1 * np.sum(np.log(probs) * probs) / np.log(2)
             else:
-                H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies])
-
+                H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
 
             # store the top k words and entropies 
             if len(top_k_H) < self.k:
@@ -158,6 +171,18 @@ def parse_args() -> argparse.Namespace:
         default="sow_pods_5.txt",
         help="file with all words to use a solutions for autoplay"
     )
+    parser.add_argument(
+        "--weight",
+        type=str,
+        default=None,
+        help="file with weights for each word. Generally, harder words should have higher weights."
+    )
+    # parser.add_argument(
+    #     "--min_words",
+    #     action="store_true",
+    #     default=False,
+    #     help="minimise expected number of remaining words instead of maximising entropy"
+    # )
     args = parser.parse_args()
     return args
 
@@ -169,7 +194,8 @@ def main():
                     word_len=args.len,
                     wordfile=args.wordfile,
                     first_dict_file=args.first_dict_file,
-                    second_dict_file=args.second_dict_file)
+                    second_dict_file=args.second_dict_file,
+                    weight=args.weight)
 
     first_guess = wordle.compute_best_guess()
 

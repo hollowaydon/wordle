@@ -1,5 +1,6 @@
 from wordle_improved import Wordle, parse_args
 from collections import Counter
+import pickle
 import time
 
 def main():
@@ -8,16 +9,23 @@ def main():
     solutions = []
 
     with open(args.play_file) as f:
+        # TODO: can I just do solutions = f.split()???
         for line in f:
             solutions.append(line[:args.len])
     
     all_guesses = []
+    weight_dict = dict()
     for solution in solutions:
         wordle = Wordle(compute_table=False,
                         word_len=args.len,
                         wordfile=args.wordfile,
                         first_dict_file=args.first_dict_file,
-                        second_dict_file=args.second_dict_file)
+                        second_dict_file=args.second_dict_file,
+                        weight=None)
+
+        print("#########")
+        print(solution)
+        print("-------")
 
         no_guesses = 0 # how many guesses have been made so far?
         guess = '' # initalise an incorrect guess for initial while check
@@ -32,7 +40,7 @@ def main():
                 guess = list(wordle.wordset)[0]
 
             elif no_guesses == 1: # first guess
-                if wordle.first_guess_dict_exists:
+                if wordle.first_guess:
                     guess = max(wordle.first_guess, key=wordle.first_guess.get)
                     # guess should be 'tares'
                 else:
@@ -46,7 +54,7 @@ def main():
                 wordle.restrict_wordset(guess, score)
 
             elif no_guesses == 2:
-                if wordle.second_guess_dict_exists:
+                if wordle.second_guess:
                     guess_dict = wordle.second_guess[score]
                     guess = max(guess_dict, key=guess_dict.get)
                 else:
@@ -71,13 +79,21 @@ def main():
                 guess = max(guess_dict, key=guess_dict.get)
                 score = wordle.compute_score(guess, solution)
                 wordle.restrict_wordset(guess, score)
+            print(guess)
 
         all_guesses.append(no_guesses)
-        if no_guesses > 6:
-            print(f"{solution} -- {no_guesses} guesses")
+        # if no_guesses > 6:
+        #     print(f"{solution} -- {no_guesses} guesses")
+        weight_dict[solution] = no_guesses # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
+
+    # save weight file.
+    # if args.weight:
+    #     with open(args.weight, 'wb') as f:
+    #         pickle.dump(weight_dict, f)
 
     print(str(Counter(all_guesses)))
     print(f"time elapsed: {time.perf_counter() - tic}")
+
 
 if __name__ == '__main__':
     main()
