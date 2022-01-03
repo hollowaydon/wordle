@@ -1,8 +1,14 @@
 import argparse
-from collections import defaultdict
+from collections import Counter
 import pickle
 from itertools import product
-import math
+try:
+    import numpy as np
+    np_available = True
+except ImportError:
+    print("numpy couldn't be loaded. install numpy for improved performance.")
+    np_available = False
+    import math
 
 class Wordle:
     def __init__(self,
@@ -13,7 +19,7 @@ class Wordle:
                  second_dict_file="second_guess.pickle",
                  weight=None):
         self.word_len = word_len
-        self.k = 5 # top k words to recall
+        self.k = 20 # top k words to recall
         # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
         self.wordlist = []
         with open(wordfile) as f:
@@ -28,7 +34,7 @@ class Wordle:
         else:
             with open(weight, 'rb') as f:
                 self.weights = pickle.load(f)
-
+            
         # load dictionary of best first guesses.
         try:
             with open(first_dict_file, 'rb') as f:
@@ -71,19 +77,33 @@ class Wordle:
                 # num += 1 * (3**(4 - i))
         return score
 
+
     def compute_best_guess(self) -> dict:
         # for each guess, loop over possible solutions to work out which guess gives the most information
+        guess_dict = dict()
         top_k_H = {'-1':0} # TODO: remove this I think? don't need this default value for testing any more, but check.
         for i, guess in enumerate(self.wordlist):
-            score_frequencies = defaultdict(int)
+            score_frequencies = Counter()
             n_answers = 0
             for answer in self.wordset:
+                if guess not in guess_dict.keys():
+                    guess_dict[guess] = [self.guess_answer[i][answer]]
+                else:
+                    guess_dict[guess].append(self.guess_answer[i][answer])
                 # add up each score by its weight according to the loaded weights for each answer.
-                score_frequencies[self.guess_answer[i][answer]] += self.weights[answer]
+                score_frequencies.update({self.guess_answer[i][answer]: self.weights[answer]})
                 n_answers += self.weights[answer]
 
             score_frequencies = list(score_frequencies.values())
-            H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
+            # compute entropy sum_i p_i log(p_i)
+            # score_frequencies = list(Counter(guess_dict[guess]).values())
+            # n_answers = len(self.wordset)
+            # if numpy is available, this will run faster.
+            if np_available:
+                probs = np.array(score_frequencies)  / n_answers
+                H = -1 * np.sum(np.log(probs) * probs) / np.log(2)
+            else:
+                H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
 
             # store the top k words and entropies 
             if len(top_k_H) < self.k:
