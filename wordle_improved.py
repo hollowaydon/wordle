@@ -13,7 +13,7 @@ class Wordle:
                  second_dict_file="second_guess.pickle",
                  weight=None):
         self.word_len = word_len
-        self.k = 20 # top k words to recall
+        self.k = 5 # top k words to recall
         # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
         self.wordlist = []
         with open(wordfile) as f:

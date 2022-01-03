@@ -1,4 +1,5 @@
 from wordle_improved import Wordle, parse_args
+import datetime
 import pickle
 
 def remaining_options(w):
@@ -20,7 +21,7 @@ def valid_score(score, length):
             return False
     return True
 
-def get_input(length, k, top_k_dict):
+def get_input(length, k, top_k_dict, scores_recorded):
     print(f"the best {k} options to guess are:")
     for key in sorted(top_k_dict, key = top_k_dict.get, reverse=True):
         print(f"'{key}' with entropy: {top_k_dict[key] : .4f} bits")
@@ -44,7 +45,8 @@ def main():
                     first_dict_file=args.first_dict_file,
                     second_dict_file=args.second_dict_file,
                     weight=None)
-
+                    
+    scores_recorded = [] # store guesses
     for i in range(6):
         if i == 0:
             if wordle.first_guess:
@@ -53,7 +55,8 @@ def main():
                 wordle.compute_guess_answer_table()
                 top_k_dict = wordle.compute_best_guess()
             
-            word, score = get_input(args.len, wordle.k, top_k_dict)
+            word, score = get_input(args.len, wordle.k, top_k_dict, scores_recorded)
+            scores_recorded.append(score)
             if score == '2' * wordle.word_len:
                 print(f'yahoo! you solved the wordle in 1 guess!')
                 break
@@ -71,7 +74,8 @@ def main():
                 wordle.compute_guess_answer_table()
                 top_k_dict = wordle.compute_best_guess()
 
-            word, score = get_input(args.len, wordle.k, top_k_dict)
+            word, score = get_input(args.len, wordle.k, top_k_dict, scores_recorded)
+            scores_recorded.append(score)
             if score == '2' * wordle.word_len:
                 print(f'yahoo! you solved the wordle in 2 guesses!')
                 break
@@ -85,7 +89,8 @@ def main():
         else:
             if len(wordle.wordset) > 1:
                 top_k_dict = wordle.compute_best_guess()
-                word, score = get_input(args.len, wordle.k, top_k_dict)
+                word, score = get_input(args.len, wordle.k, top_k_dict, scores_recorded)
+                scores_recorded.append(score)
                 if i == 5 and score != '2' * wordle.word_len:
                     print('oh man! you ran out of guesses')
                 if score == '2' * wordle.word_len:
@@ -96,7 +101,8 @@ def main():
                 if len(wordle.wordset) == 0:
                     break
             elif len(wordle.wordset) == 1:
-                word, score = get_input(args.len, wordle.k, top_k_dict)
+                word, score = get_input(args.len, wordle.k, top_k_dict, scores_recorded)
+                scores_recorded.append(score)
                 if i == 5 and score != '2' * wordle.word_len:
                     print('oh man! you ran out of guesses')
                     break
@@ -107,6 +113,13 @@ def main():
                 remaining_options(wordle.wordset)
                 if len(wordle.wordset) == 0:
                     break
+
+    # copy wordle printing output
+    guessess_taken = len(scores_recorded)
+    wordle_number = (datetime.date.today() - datetime.date(year=2021, month=6, day=19)).days
+    print(f"Wordle {wordle_number} {guessess_taken}/6")
+    for score in scores_recorded:
+        print(score.replace("2", "\U0001F7E9").replace("1", "\U0001F7E8").replace("0","\U00002B1B"))
 
 if __name__ == '__main__':
     main()

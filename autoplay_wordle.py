@@ -23,10 +23,6 @@ def main():
                         second_dict_file=args.second_dict_file,
                         weight=None)
 
-        print("#########")
-        print(solution)
-        print("-------")
-
         no_guesses = 0 # how many guesses have been made so far?
         guess = '' # initalise an incorrect guess for initial while check
         g_a_table_done = False # keep track of once the guess answer table has been computed.
@@ -79,11 +75,10 @@ def main():
                 guess = max(guess_dict, key=guess_dict.get)
                 score = wordle.compute_score(guess, solution)
                 wordle.restrict_wordset(guess, score)
-            print(guess)
-
+            
         all_guesses.append(no_guesses)
-        # if no_guesses > 6:
-        #     print(f"{solution} -- {no_guesses} guesses")
+        if no_guesses > 6:
+            print(f"{solution} -- {no_guesses} guesses")
         weight_dict[solution] = no_guesses # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
 
     # save weight file.
