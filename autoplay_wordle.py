@@ -1,5 +1,5 @@
 from wordle_improved import Wordle, parse_args
-from collections import Counter
+from collections import Counter, defaultdict
 import pickle
 import time
 
@@ -15,6 +15,8 @@ def main():
     
     all_guesses = []
     weight_dict = dict()
+    guess_count_dict = defaultdict(list)
+
     for solution in solutions:
         wordle = Wordle(compute_table=False,
                         word_len=args.len,
@@ -22,10 +24,6 @@ def main():
                         first_dict_file=args.first_dict_file,
                         second_dict_file=args.second_dict_file,
                         weight=None)
-
-        print("#########")
-        print(solution)
-        print("-------")
 
         no_guesses = 0 # how many guesses have been made so far?
         guess = '' # initalise an incorrect guess for initial while check
@@ -79,17 +77,19 @@ def main():
                 guess = max(guess_dict, key=guess_dict.get)
                 score = wordle.compute_score(guess, solution)
                 wordle.restrict_wordset(guess, score)
-            print(guess)
 
         all_guesses.append(no_guesses)
-        # if no_guesses > 6:
-        #     print(f"{solution} -- {no_guesses} guesses")
+        guess_count_dict[no_guesses].append(solution)
+        if no_guesses > 6:
+            print(f"{solution} -- {no_guesses} guesses")
         weight_dict[solution] = no_guesses # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
 
     # save weight file.
     # if args.weight:
     #     with open(args.weight, 'wb') as f:
     #         pickle.dump(weight_dict, f)
+    with open('guess_counts.pickle', 'wb') as f:
+        pickle.dump(guess_count_dict, f)
 
     print(str(Counter(all_guesses)))
     print(f"time elapsed: {time.perf_counter() - tic}")

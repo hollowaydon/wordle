@@ -13,7 +13,7 @@ class Wordle:
                  second_dict_file="second_guess.pickle",
                  weight=None):
         self.word_len = word_len
-        self.k = 20 # top k words to recall
+        self.k = 100 # top k words to recall
         # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
         self.wordlist = []
         with open(wordfile) as f:
@@ -28,7 +28,12 @@ class Wordle:
         else:
             with open(weight, 'rb') as f:
                 self.weights = pickle.load(f)
-            
+                    
+        # generate list of 'hard words' for extra entropy calculation
+        # TODO: change this later: build dict from no. guesses to list/set of words, remove them iteratively and rerun ebntropy calculation
+        with open('hard_words.txt', 'r') as f:
+            self.wordset_hard = set(f.read().splitlines())
+
         # load dictionary of best first guesses.
         try:
             with open(first_dict_file, 'rb') as f:
@@ -74,6 +79,7 @@ class Wordle:
     def compute_best_guess(self) -> dict:
         # for each guess, loop over possible solutions to work out which guess gives the most information
         top_k_H = {'-1':0} # TODO: remove this I think? don't need this default value for testing any more, but check.
+        wordset_hard = self.wordset.intersection(self.wordset_hard)
         for i, guess in enumerate(self.wordlist):
             score_frequencies = defaultdict(int)
             n_answers = 0
@@ -84,6 +90,19 @@ class Wordle:
 
             score_frequencies = list(score_frequencies.values())
             H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
+            H += i * 1e-10   # add on a little bit to break ties. Otherwise ties lead to non-determinsticness in choice of guess
+            #####
+            # score_frequencies_hard = defaultdict(int)
+            # n_answers_hard = 0
+            
+            # for answer in wordset_hard:
+            #     # add up each score by its weight according to the loaded weights for each answer.
+            #     score_frequencies_hard[self.guess_answer[i][answer]] += self.weights[answer]
+            #     n_answers_hard += self.weights[answer]
+
+            # score_frequencies_hard = list(score_frequencies_hard.values())
+            # H_hard = -1 * sum([(x/n_answers_hard) * math.log(x/n_answers_hard) for x in score_frequencies_hard]) / math.log(2)
+            #####
 
             # store the top k words and entropies 
             if len(top_k_H) < self.k:
