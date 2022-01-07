@@ -1,9 +1,27 @@
 from wordle_improved import Wordle, parse_args
-from collections import Counter
+from collections import Counter, defaultdict
 import pickle
 import time
+import random
+
+
+def get_best_guess(guess_dict, word_set):
+    max_v = max(guess_dict.values())
+    best_k = set()
+    for k, v in guess_dict.items():
+        if v == max_v:
+            best_k.add(k)
+    # if possible, choose an equally best word if it is also in the set of possible words.
+    if word_set.intersection(best_k):
+        guess = random.sample(word_set.intersection(best_k), 1)[0]
+    else:
+        guess = random.sample(best_k, 1)[0]
+    return guess
+    
+
 
 def main():
+    random.seed(123)
     args = parse_args()
     tic = time.perf_counter()
     solutions = []
@@ -15,6 +33,7 @@ def main():
     
     all_guesses = []
     weight_dict = dict()
+    guesses_taken_dict = defaultdict(list)
     for solution in solutions:
         wordle = Wordle(compute_table=False,
                         word_len=args.len,
@@ -72,15 +91,23 @@ def main():
 
             else:
                 guess_dict = wordle.compute_best_guess()
-                guess = max(guess_dict, key=guess_dict.get)
+                # guess = max(guess_dict, key=guess_dict.get)
+                guess = get_best_guess(guess_dict, wordle.wordset)
                 score = wordle.compute_score(guess, solution)
                 wordle.restrict_wordset(guess, score)
+            # print(guess)
             
         all_guesses.append(no_guesses)
+        # print()
+        
+        guesses_taken_dict[no_guesses].append(solution)
         if no_guesses > 6:
             print(f"{solution} -- {no_guesses} guesses")
         weight_dict[solution] = no_guesses # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
 
+    # save dict of results
+    with open('minimax_results.pickle', 'wb') as f:
+        pickle.dump(guesses_taken_dict, f)
     # save weight file.
     # if args.weight:
     #     with open(args.weight, 'wb') as f:

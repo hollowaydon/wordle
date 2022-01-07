@@ -7,7 +7,7 @@ def remaining_options(w):
         print("ruh roh, there aren't any words left!")
     elif len(w) == 1:
         print(f'only one word left: {list(w)[0]}')
-    elif len(w) <= 10:
+    elif len(w) <= 500:
         print("there aren't many possible words left. here are all the possible remaining words:")
         print(w)
     else:

@@ -13,7 +13,7 @@ class Wordle:
                  second_dict_file="second_guess.pickle",
                  weight=None):
         self.word_len = word_len
-        self.k = 5 # top k words to recall
+        self.k = 25 # top k words to recall
         # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
         self.wordlist = []
         with open(wordfile) as f:
@@ -47,7 +47,6 @@ class Wordle:
         if compute_table:
             self.compute_guess_answer_table()
 
-    
 
     def compute_guess_answer_table(self):
         for i, guess in enumerate(self.wordlist):
@@ -57,23 +56,23 @@ class Wordle:
     
 
     def compute_score(self, guess, answer) -> str:
-        score = ''
-        # num = 0
+        score = ['0'] * self.word_len
+        guess_list = list(guess)
+        answer_list = list(answer)
         for i in range(self.word_len):
-            if guess[i] not in answer:
-                score += '0'
-                # num += 0 * (3**(4 - i))
-            elif guess[i] == answer[i]:
-                score += '2'
-                # num += 2 * (3**(4 - i))
-            else:
-                score += '1'
-                # num += 1 * (3**(4 - i))
-        return score
+            if guess_list[i] == answer_list[i]:
+                score[i] = '2'
+        answer_list = [x for i, x in enumerate(answer_list) if score[i] == '0']
+        for i in range(self.word_len):
+            if score[i] == '0':
+                if guess_list[i] in answer_list:
+                    score[i] = '1'
+                    answer_list.remove(guess_list[i])
+        return ''.join(score)
 
     def compute_best_guess(self) -> dict:
         # for each guess, loop over possible solutions to work out which guess gives the most information
-        top_k_H = {'-1':0} # TODO: remove this I think? don't need this default value for testing any more, but check.
+        top_k_H = {'-1':-1 * math.inf}
         for i, guess in enumerate(self.wordlist):
             score_frequencies = defaultdict(int)
             n_answers = 0
@@ -83,8 +82,11 @@ class Wordle:
                 n_answers += self.weights[answer]
 
             score_frequencies = list(score_frequencies.values())
+            # entropy
             H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
-
+            # minimax alternative
+            # H = -1 * max(score_frequencies)
+            
             # store the top k words and entropies 
             if len(top_k_H) < self.k:
                 top_k_H[guess] = H
@@ -93,25 +95,31 @@ class Wordle:
                     del top_k_H[min(top_k_H, key=top_k_H.get)]
                     top_k_H[guess] = H
             try:
-                del top_k_H[-1]
+                del top_k_H['-1'] # remove the initial key
             except:
                 pass
         return top_k_H
 
 
     def restrict_wordset(self, word, score) -> None:
-        wordset_restricted = self.wordset
-        for i in range(self.word_len):
-            if score[i] == '0':
-                wordset_restricted = {w for w in wordset_restricted if word[i] not in w}
-            elif score[i] == '1':
-                wordset_restricted = {w for w in wordset_restricted if ((w[i] != word[i]) & (word[i] in w))}
-            elif score[i] == '2':
-                wordset_restricted = {w for w in wordset_restricted if w[i] == word[i]}
-            else:
-                print('error in restrict wordset: invalid score')
-        self.wordset =  wordset_restricted
+        wordset_restricted = set()
+        for answer in self.wordset:
+            if self.compute_score(word, answer) == score:
+                wordset_restricted.add(answer)
+        self.wordset = wordset_restricted
 
+        # alternative that might be faster but doesn't work
+        # wordset_restricted = self.wordset
+        # for i in range(self.word_len):
+        #     if score[i] == '2':
+        #         wordset_restricted = {w for w in wordset_restricted if w[i] == word[i]}
+        # for i in range(self.word_len):
+        #     if score[i] == '1':
+        #         wordset_restricted = {w for w in wordset_restricted if (w[i] != word[i]) & (word[i] in {l for i, l in enumerate(w) if score[i] != '2'})}
+        # for i in range(self.word_len):
+        #     if score[i] == '0':
+        #         wordset_restricted = {w for w in wordset_restricted if word[i] not in {l for i, l in enumerate(w) if score[i] == '0'}}
+        # self.wordset = wordset_restricted
 
 
 def parse_args() -> argparse.Namespace:
