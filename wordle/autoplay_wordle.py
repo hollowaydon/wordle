@@ -81,9 +81,8 @@ def main():
         all_guesses.append(no_guesses)
         if no_guesses > 6:
             print(f"{solution} -- {no_guesses} guesses")
-        weight_dict[
-            solution
-        ] = no_guesses  # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
+        # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
+        weight_dict[solution] = no_guesses
 
     # save weight file.
     # if args.weight:

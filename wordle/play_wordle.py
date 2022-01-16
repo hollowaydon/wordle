@@ -64,7 +64,7 @@ def main():
             word, score = get_input(args.len, wordle.k, top_k_dict, scores_recorded)
             scores_recorded.append(score)
             if score == "2" * wordle.word_len:
-                print(f"yahoo! you solved the wordle in 1 guess!")
+                print("yahoo! you solved the wordle in 1 guess!")
                 break
 
             wordle.restrict_wordset(word, score)
@@ -83,7 +83,7 @@ def main():
             word, score = get_input(args.len, wordle.k, top_k_dict, scores_recorded)
             scores_recorded.append(score)
             if score == "2" * wordle.word_len:
-                print(f"yahoo! you solved the wordle in 2 guesses!")
+                print("yahoo! you solved the wordle in 2 guesses!")
                 break
 
             wordle.restrict_wordset(word, score)

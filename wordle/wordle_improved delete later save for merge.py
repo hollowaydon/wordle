@@ -25,7 +25,8 @@ class Wordle:
     ):
         self.word_len = word_len
         self.k = 20  # top k words to recall
-        # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
+        # use entropy if false, use min expected remaining words if true.
+        # self.min_words_remaining = min_words_remaining
         self.wordlist = []
         with open(wordfile) as f:
             for line in f:
@@ -198,7 +199,8 @@ def main():
     with open(args.first_dict_file, "wb") as f:
         pickle.dump(first_guess, f)
 
-    # this program works out the best second guess after we have already guessed 'tares' for each of the 243 possible scores we could get for 'tares'.
+    # this program works out the best second guess after we have already guessed 'tares' for each of the 243 possible
+    # scores we could get for 'tares'.
     scores = ["".join(x) for x in product("012", repeat=args.len)]
     second_guess = {}
     for i, score in enumerate(scores):

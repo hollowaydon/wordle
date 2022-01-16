@@ -100,7 +100,7 @@ def main():
             print("oh man! you ran out of guesses")
         if score == "22222":
             if i == 0:
-                print(f"yahoo! you solved the wordle in 1 guess!")
+                print("yahoo! you solved the wordle in 1 guess!")
             else:
                 print(f"yahoo! you solved the wordle in {i+1} guesses!")
             break
