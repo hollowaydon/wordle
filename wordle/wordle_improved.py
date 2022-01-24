@@ -1,78 +1,109 @@
 import argparse
-from collections import defaultdict
-import pickle
-from itertools import product
 import math
+import pickle
+from collections import defaultdict
+from itertools import product
+
 
 class Wordle:
-    def __init__(self,
-                 compute_table=True,
-                 word_len=5,
-                 wordfile="sow_pods_5.txt",
-                 first_dict_file="first_guess.pickle",
-                 second_dict_file="second_guess.pickle",
-                 weight=None):
+    def __init__(
+        self,
+        compute_table=True,
+        word_len=5,
+        wordfile="sow_pods_5.txt",
+        first_dict_file="first_guess.pickle",
+        second_dict_file="second_guess.pickle",
+        weight=None,
+    ):
         self.word_len = word_len
+<<<<<<< HEAD:wordle_improved.py
         self.k = 25 # top k words to recall
         # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
+=======
+        self.k = 5  # top k words to recall
+        # use entropy if false, use min expected remaining words if true.
+        # self.min_words_remaining = min_words_remaining
+>>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
         self.wordlist = []
         with open(wordfile) as f:
             for line in f:
-                self.wordlist.append(line[:self.word_len])
+                self.wordlist.append(line[: self.word_len])
         self.wordset = set(self.wordlist)
-        self.wordlist = self.wordlist # [:100]
+        self.wordlist = self.wordlist  # [:100]
 
         # generate weights for each word: all weights start at 1.
         if weight is None:
             self.weights = dict.fromkeys(self.wordlist, 1)
         else:
-            with open(weight, 'rb') as f:
+            with open(weight, "rb") as f:
                 self.weights = pickle.load(f)
 
         # load dictionary of best first guesses.
         try:
-            with open(first_dict_file, 'rb') as f:
+            with open(first_dict_file, "rb") as f:
                 self.first_guess = pickle.load(f)
         except:
-            print('no first guess file found')
+            print("no first guess file found")
 
         # load dictionary of best second guesses for each score for first guess.
         try:
-            with open(second_dict_file, 'rb') as f:
+            with open(second_dict_file, "rb") as f:
                 self.second_guess = pickle.load(f)
         except:
-            print('no second guess file found')
+            print("no second guess file found")
 
         self.guess_answer = []
         if compute_table:
             self.compute_guess_answer_table()
 
+<<<<<<< HEAD:wordle_improved.py
 
+=======
+>>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
     def compute_guess_answer_table(self):
         for i, guess in enumerate(self.wordlist):
             self.guess_answer.append(dict())
             for answer in self.wordset:
                 self.guess_answer[i][answer] = self.compute_score(guess, answer)
-    
 
     def compute_score(self, guess, answer) -> str:
-        score = ['0'] * self.word_len
+<<<<<<< HEAD:wordle_improved.py
+        score = ["0"] * self.word_len
         guess_list = list(guess)
         answer_list = list(answer)
         for i in range(self.word_len):
             if guess_list[i] == answer_list[i]:
-                score[i] = '2'
-        answer_list = [x for i, x in enumerate(answer_list) if score[i] == '0']
+                score[i] = "2"
+        answer_list = [x for i, x in enumerate(answer_list) if score[i] == "0"]
         for i in range(self.word_len):
-            if score[i] == '0':
+            if score[i] == "0":
                 if guess_list[i] in answer_list:
-                    score[i] = '1'
+                    score[i] = "1"
                     answer_list.remove(guess_list[i])
-        return ''.join(score)
+        return "".join(score)
 
     def compute_best_guess(self) -> dict:
         # for each guess, loop over possible solutions to work out which guess gives the most information
-        top_k_H = {'-1':-1 * math.inf}
+        top_k_H = {"-1":-1 * math.inf}
+=======
+        score = ""
+        # num = 0
+        for i in range(self.word_len):
+            if guess[i] not in answer:
+                score += "0"
+                # num += 0 * (3**(4 - i))
+            elif guess[i] == answer[i]:
+                score += "2"
+                # num += 2 * (3**(4 - i))
+            else:
+                score += "1"
+                # num += 1 * (3**(4 - i))
+        return score
+
+    def compute_best_guess(self) -> dict:
+        # for each guess, loop over possible solutions to work out which guess gives the most information
+        top_k_H = {"-1": -1 * math.inf}  # TODO: remove this I think? don't need this default value for testing any more, but check.
+>>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
         for i, guess in enumerate(self.wordlist):
             score_frequencies = defaultdict(int)
             n_answers = 0
@@ -82,12 +113,18 @@ class Wordle:
                 n_answers += self.weights[answer]
 
             score_frequencies = list(score_frequencies.values())
+<<<<<<< HEAD:wordle_improved.py
             # entropy
             H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
             # minimax alternative
             # H = -1 * max(score_frequencies)
             
             # store the top k words and entropies 
+=======
+            H = -1 * sum([(x / n_answers) * math.log(x / n_answers) for x in score_frequencies]) / math.log(2)
+
+            # store the top k words and entropies
+>>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
             if len(top_k_H) < self.k:
                 top_k_H[guess] = H
             else:
@@ -95,13 +132,13 @@ class Wordle:
                     del top_k_H[min(top_k_H, key=top_k_H.get)]
                     top_k_H[guess] = H
             try:
-                del top_k_H['-1'] # remove the initial key
+                del top_k_H["-1"] # remove the initial key
             except:
                 pass
         return top_k_H
 
-
     def restrict_wordset(self, word, score) -> None:
+<<<<<<< HEAD:wordle_improved.py
         wordset_restricted = set()
         for answer in self.wordset:
             if self.compute_score(word, answer) == score:
@@ -120,50 +157,57 @@ class Wordle:
         #     if score[i] == '0':
         #         wordset_restricted = {w for w in wordset_restricted if word[i] not in {l for i, l in enumerate(w) if score[i] == '0'}}
         # self.wordset = wordset_restricted
+=======
+        wordset_restricted = self.wordset
+        for i in range(self.word_len):
+            if score[i] == "0":
+                wordset_restricted = {w for w in wordset_restricted if word[i] not in w}
+            elif score[i] == "1":
+                wordset_restricted = {w for w in wordset_restricted if ((w[i] != word[i]) & (word[i] in w))}
+            elif score[i] == "2":
+                wordset_restricted = {w for w in wordset_restricted if w[i] == word[i]}
+            else:
+                print("error in restrict wordset: invalid score")
+        self.wordset = wordset_restricted
+>>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "-l",
-        "--len",
-        type=int,
-        default=5,
-        help="the length of the word that is being guessed."
-    )
+    parser.add_argument("-l", "--len", type=int, default=5, help="the length of the word that is being guessed.")
     parser.add_argument(
         "-w",
         "--wordfile",
         type=str,
         default="sow_pods_5.txt",
-        help="file containing all possible words of appropriate length."
+        help="file containing all possible words of appropriate length.",
     )
     parser.add_argument(
         "-f",
         "--first_dict_file",
         type=str,
         default="first_guess.pickle",
-        help="filename for location to save dictionary of the best first words to guess"
+        help="filename for location to save dictionary of the best first words to guess",
     )
     parser.add_argument(
         "-s",
         "--second_dict_file",
         type=str,
         default="second_guess.pickle",
-        help="filename for location to save dictionary of the best second words to guess"
+        help="filename for location to save dictionary of the best second words to guess",
     )
     parser.add_argument(
         "-p",
         "--play_file",
         type=str,
         default="sow_pods_5.txt",
-        help="file with all words to use a solutions for autoplay"
+        help="file with all words to use a solutions for autoplay",
     )
     parser.add_argument(
         "--weight",
         type=str,
         default=None,
-        help="file with weights for each word. Generally, harder words should have higher weights."
+        help="file with weights for each word. Generally, harder words should have higher weights.",
     )
     # parser.add_argument(
     #     "--min_words",
@@ -178,35 +222,40 @@ def parse_args() -> argparse.Namespace:
 def main():
     args = parse_args()
     # first, get the top 5 answers for the first guess. The best of these should be 'tares'
-    wordle = Wordle(compute_table=True,
-                    word_len=args.len,
-                    wordfile=args.wordfile,
-                    first_dict_file=args.first_dict_file,
-                    second_dict_file=args.second_dict_file,
-                    weight=args.weight)
+    wordle = Wordle(
+        compute_table=True,
+        word_len=args.len,
+        wordfile=args.wordfile,
+        first_dict_file=args.first_dict_file,
+        second_dict_file=args.second_dict_file,
+        weight=args.weight,
+    )
 
     first_guess = wordle.compute_best_guess()
 
     # pickle the dictionary
-    with open(args.first_dict_file, 'wb') as f:
+    with open(args.first_dict_file, "wb") as f:
         pickle.dump(first_guess, f)
 
-    # this program works out the best second guess after we have already guessed 'tares' for each of the 243 possible scores we could get for 'tares'.
-    scores = ["".join(x) for x in product('012', repeat = args.len)]
+    # this program works out the best second guess after we have already guessed 'tares' for each of the 243 possible
+    # scores we could get for 'tares'.
+    scores = ["".join(x) for x in product("012", repeat=args.len)]
     second_guess = {}
     for i, score in enumerate(scores):
-        wordle = Wordle(compute_table=False,
-                    word_len=args.len,
-                    wordfile=args.wordfile,
-                    first_dict_file=args.first_dict_file,
-                    second_dict_file=args.second_dict_file)
+        wordle = Wordle(
+            compute_table=False,
+            word_len=args.len,
+            wordfile=args.wordfile,
+            first_dict_file=args.first_dict_file,
+            second_dict_file=args.second_dict_file,
+        )
 
         best_first = max(first_guess, key=first_guess.get)
         wordle.restrict_wordset(best_first, score)
         if not wordle.wordset:
             second_guess[score] = "no words match"
         elif len(wordle.wordset) == 1:
-            second_guess[score] = {wordle.wordset.pop() : 0.0}
+            second_guess[score] = {wordle.wordset.pop(): 0.0}
         else:
             wordle.compute_guess_answer_table()
             top_words = wordle.compute_best_guess()
@@ -215,9 +264,9 @@ def main():
         # print(str(second_guess[score]))
 
     # pickle the dictionary
-    with open(args.second_dict_file, 'wb') as f:
+    with open(args.second_dict_file, "wb") as f:
         pickle.dump(second_guess, f)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

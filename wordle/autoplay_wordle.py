@@ -1,3 +1,4 @@
+<<<<<<< HEAD:autoplay_wordle.py
 from wordle_improved import Wordle, parse_args
 from collections import Counter, defaultdict
 import pickle
@@ -79,7 +80,6 @@ def main():
                     guess_dict = wordle.compute_best_guess()
                     guess = max(guess_dict, key=guess_dict.get)
                     g_a_table_done = True
-                    
 
                 # guess_dict = wordle.second_guess[score]
                 # guess = max(guess_dict, key=guess_dict.get)
@@ -95,15 +95,20 @@ def main():
                 guess = get_best_guess(guess_dict, wordle.wordset)
                 score = wordle.compute_score(guess, solution)
                 wordle.restrict_wordset(guess, score)
+<<<<<<< HEAD:autoplay_wordle.py
             # print(guess)
             
+=======
+
+>>>>>>> origin/feature/refactor_project:wordle/autoplay_wordle.py
         all_guesses.append(no_guesses)
         # print()
         
         guesses_taken_dict[no_guesses].append(solution)
         if no_guesses > 6:
             print(f"{solution} -- {no_guesses} guesses")
-        weight_dict[solution] = no_guesses # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
+        # TODO: check if += is better here? maybe need to load separate file for loading and saving the weight dict.
+        weight_dict[solution] = no_guesses
 
     # save dict of results
     with open('minimax_results.pickle', 'wb') as f:
@@ -117,5 +122,5 @@ def main():
     print(f"time elapsed: {time.perf_counter() - tic}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

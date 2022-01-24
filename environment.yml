@@ -1,0 +1,13 @@
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - autoflake>=1.4
+  - black>=19.10b0
+  - conda-build>=3.21.7
+  - flake8>=3.9.2
+  - invoke>=1.6.0
+  - isort>=5.9.3
+  - numpy>=1.21.2
+  - pytest>=6.2.5

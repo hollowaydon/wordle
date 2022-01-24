@@ -1,0 +1,5 @@
+# Ignore profiliing output
+*.lprof
+
+# Ignore cached python files
+*.pyc
