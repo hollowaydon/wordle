@@ -16,14 +16,9 @@ class Wordle:
         weight=None,
     ):
         self.word_len = word_len
-<<<<<<< HEAD:wordle_improved.py
-        self.k = 25 # top k words to recall
-        # self.min_words_remaining = min_words_remaining # use entropy if false, use min expected remaining words if true.
-=======
         self.k = 5  # top k words to recall
         # use entropy if false, use min expected remaining words if true.
         # self.min_words_remaining = min_words_remaining
->>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
         self.wordlist = []
         with open(wordfile) as f:
             for line in f:
@@ -56,10 +51,6 @@ class Wordle:
         if compute_table:
             self.compute_guess_answer_table()
 
-<<<<<<< HEAD:wordle_improved.py
-
-=======
->>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
     def compute_guess_answer_table(self):
         for i, guess in enumerate(self.wordlist):
             self.guess_answer.append(dict())
@@ -67,7 +58,6 @@ class Wordle:
                 self.guess_answer[i][answer] = self.compute_score(guess, answer)
 
     def compute_score(self, guess, answer) -> str:
-<<<<<<< HEAD:wordle_improved.py
         score = ["0"] * self.word_len
         guess_list = list(guess)
         answer_list = list(answer)
@@ -85,25 +75,6 @@ class Wordle:
     def compute_best_guess(self) -> dict:
         # for each guess, loop over possible solutions to work out which guess gives the most information
         top_k_H = {"-1":-1 * math.inf}
-=======
-        score = ""
-        # num = 0
-        for i in range(self.word_len):
-            if guess[i] not in answer:
-                score += "0"
-                # num += 0 * (3**(4 - i))
-            elif guess[i] == answer[i]:
-                score += "2"
-                # num += 2 * (3**(4 - i))
-            else:
-                score += "1"
-                # num += 1 * (3**(4 - i))
-        return score
-
-    def compute_best_guess(self) -> dict:
-        # for each guess, loop over possible solutions to work out which guess gives the most information
-        top_k_H = {"-1": -1 * math.inf}  # TODO: remove this I think? don't need this default value for testing any more, but check.
->>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
         for i, guess in enumerate(self.wordlist):
             score_frequencies = defaultdict(int)
             n_answers = 0
@@ -113,18 +84,12 @@ class Wordle:
                 n_answers += self.weights[answer]
 
             score_frequencies = list(score_frequencies.values())
-<<<<<<< HEAD:wordle_improved.py
             # entropy
             H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
             # minimax alternative
             # H = -1 * max(score_frequencies)
             
             # store the top k words and entropies 
-=======
-            H = -1 * sum([(x / n_answers) * math.log(x / n_answers) for x in score_frequencies]) / math.log(2)
-
-            # store the top k words and entropies
->>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
             if len(top_k_H) < self.k:
                 top_k_H[guess] = H
             else:
@@ -138,7 +103,6 @@ class Wordle:
         return top_k_H
 
     def restrict_wordset(self, word, score) -> None:
-<<<<<<< HEAD:wordle_improved.py
         wordset_restricted = set()
         for answer in self.wordset:
             if self.compute_score(word, answer) == score:
@@ -157,19 +121,6 @@ class Wordle:
         #     if score[i] == '0':
         #         wordset_restricted = {w for w in wordset_restricted if word[i] not in {l for i, l in enumerate(w) if score[i] == '0'}}
         # self.wordset = wordset_restricted
-=======
-        wordset_restricted = self.wordset
-        for i in range(self.word_len):
-            if score[i] == "0":
-                wordset_restricted = {w for w in wordset_restricted if word[i] not in w}
-            elif score[i] == "1":
-                wordset_restricted = {w for w in wordset_restricted if ((w[i] != word[i]) & (word[i] in w))}
-            elif score[i] == "2":
-                wordset_restricted = {w for w in wordset_restricted if w[i] == word[i]}
-            else:
-                print("error in restrict wordset: invalid score")
-        self.wordset = wordset_restricted
->>>>>>> origin/feature/refactor_project:wordle/wordle_improved.py
 
 
 def parse_args() -> argparse.Namespace:
