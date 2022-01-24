@@ -1,4 +1,3 @@
-<<<<<<< HEAD:autoplay_wordle.py
 from wordle_improved import Wordle, parse_args
 from collections import Counter, defaultdict
 import pickle
@@ -95,12 +94,7 @@ def main():
                 guess = get_best_guess(guess_dict, wordle.wordset)
                 score = wordle.compute_score(guess, solution)
                 wordle.restrict_wordset(guess, score)
-<<<<<<< HEAD:autoplay_wordle.py
-            # print(guess)
-            
-=======
 
->>>>>>> origin/feature/refactor_project:wordle/autoplay_wordle.py
         all_guesses.append(no_guesses)
         # print()
         
