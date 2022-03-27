@@ -11,7 +11,7 @@ class Wordle:
     def __init__(self):
         self.word_len = 5
         self.wordlist = []
-        with open("sow_pods_5.txt") as f:
+        with open("data/sow_pods_5.txt") as f:
             for line in f:
                 self.wordlist.append(line[:5])
         self.wordset = set(self.wordlist)

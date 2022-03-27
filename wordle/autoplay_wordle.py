@@ -107,7 +107,7 @@ def main():
         weight_dict[solution] = no_guesses
 
     # save dict of results
-    with open("minimax_results.pickle", "wb") as f:
+    with open("data/minimax_results.pickle", "wb") as f:
         pickle.dump(guesses_taken_dict, f)
     # save weight file.
     # if args.weight:

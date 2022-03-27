@@ -18,9 +18,9 @@ class Wordle:
         self,
         compute_table=True,
         word_len=5,
-        wordfile="sow_pods_5.txt",
-        first_dict_file="first_guess.pickle",
-        second_dict_file="second_guess.pickle",
+        wordfile="data/sow_pods_5.txt",
+        first_dict_file="data/first_guess.pickle",
+        second_dict_file="data/second_guess.pickle",
         weight=None,
     ):
         self.word_len = word_len
@@ -141,28 +141,28 @@ def parse_args() -> argparse.Namespace:
         "-w",
         "--wordfile",
         type=str,
-        default="sow_pods_5.txt",
+        default="data/sow_pods_5.txt",
         help="file containing all possible words of appropriate length.",
     )
     parser.add_argument(
         "-f",
         "--first_dict_file",
         type=str,
-        default="first_guess.pickle",
+        default="data/first_guess.pickle",
         help="filename for location to save dictionary of the best first words to guess",
     )
     parser.add_argument(
         "-s",
         "--second_dict_file",
         type=str,
-        default="second_guess.pickle",
+        default="data/second_guess.pickle",
         help="filename for location to save dictionary of the best second words to guess",
     )
     parser.add_argument(
         "-p",
         "--play_file",
         type=str,
-        default="sow_pods_5.txt",
+        default="data/sow_pods_5.txt",
         help="file with all words to use a solutions for autoplay",
     )
     parser.add_argument(

@@ -16,10 +16,10 @@ class Wordle:
     def __init__(self):
         self.word_len = 5
         self.k = 5  # top k words to recall
-        self.save_dest = r"guess_answer.pickle"
+        self.save_dest = "data/guess_answer.pickle"
         self.wordlist = []
         i = 0
-        with open("sow_pods_5.txt") as f:
+        with open("data/sow_pods_5.txt") as f:
             for line in f:
                 i += 1
                 # if i > 500:
