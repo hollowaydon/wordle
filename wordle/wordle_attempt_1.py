@@ -11,7 +11,7 @@ class Wordle:
     def __init__(self):
         self.word_len = 5
         self.wordlist = []
-        with open("sow_pods_5.txt") as f:
+        with open("data/sow_pods_5.txt") as f:
             for line in f:
                 self.wordlist.append(line[:5])
         self.wordset = set(self.wordlist)
@@ -20,9 +20,9 @@ class Wordle:
         for i in self.indiv_scores:
             for j in self.indiv_scores:
                 for k in self.indiv_scores:
-                    for l in self.indiv_scores:
-                        for m in self.indiv_scores:
-                            self.all_scores.append(f"{i}{j}{k}{l}{m}")
+                    for m in self.indiv_scores:
+                        for n in self.indiv_scores:
+                            self.all_scores.append(f"{i}{j}{k}{m}{n}")
 
     def compute_wordset(self, word, score):
         wordset_restricted = self.wordset

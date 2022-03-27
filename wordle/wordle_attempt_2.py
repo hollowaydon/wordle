@@ -18,7 +18,7 @@ class Wordle:
     def __init__(self):
         self.wordlist = []
         i = 0
-        with open("sow_pods_5.txt") as f:
+        with open("data/sow_pods_5.txt") as f:
             for line in f:
                 i += 1
                 # if i > 500:
