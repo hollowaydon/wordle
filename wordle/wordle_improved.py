@@ -37,14 +37,14 @@ class Wordle:
         try:
             with open(first_dict_file, "rb") as f:
                 self.first_guess = pickle.load(f)
-        except:
+        except FileNotFoundError:
             print("no first guess file found")
 
         # load dictionary of best second guesses for each score for first guess.
         try:
             with open(second_dict_file, "rb") as f:
                 self.second_guess = pickle.load(f)
-        except:
+        except FileNotFoundError:
             print("no second guess file found")
 
         self.guess_answer = []
@@ -74,7 +74,7 @@ class Wordle:
 
     def compute_best_guess(self) -> dict:
         # for each guess, loop over possible solutions to work out which guess gives the most information
-        top_k_H = {"-1":-1 * math.inf}
+        top_k_H = {"-1": -1 * math.inf}
         for i, guess in enumerate(self.wordlist):
             score_frequencies = defaultdict(int)
             n_answers = 0
@@ -85,11 +85,11 @@ class Wordle:
 
             score_frequencies = list(score_frequencies.values())
             # entropy
-            H = -1 * sum([(x/n_answers) * math.log(x/n_answers) for x in score_frequencies]) / math.log(2)
+            H = -1 * sum([(x / n_answers) * math.log(x / n_answers) for x in score_frequencies]) / math.log(2)
             # minimax alternative
             # H = -1 * max(score_frequencies)
-            
-            # store the top k words and entropies 
+
+            # store the top k words and entropies
             if len(top_k_H) < self.k:
                 top_k_H[guess] = H
             else:
@@ -97,7 +97,7 @@ class Wordle:
                     del top_k_H[min(top_k_H, key=top_k_H.get)]
                     top_k_H[guess] = H
             try:
-                del top_k_H["-1"] # remove the initial key
+                del top_k_H["-1"]  # remove the initial key
             except:
                 pass
         return top_k_H
@@ -112,14 +112,20 @@ class Wordle:
         # alternative that might be faster but doesn't work
         # wordset_restricted = self.wordset
         # for i in range(self.word_len):
-        #     if score[i] == '2':
+        #     if score[i] == "2":
         #         wordset_restricted = {w for w in wordset_restricted if w[i] == word[i]}
         # for i in range(self.word_len):
-        #     if score[i] == '1':
-        #         wordset_restricted = {w for w in wordset_restricted if (w[i] != word[i]) & (word[i] in {l for i, l in enumerate(w) if score[i] != '2'})}
+        #     if score[i] == "1":
+        #         wordset_restricted = {
+        #             w
+        #             for w in wordset_restricted
+        #             if (w[i] != word[i]) & (word[i] in {l for i, l in enumerate(w) if score[i] != "2"})
+        #         }
         # for i in range(self.word_len):
-        #     if score[i] == '0':
-        #         wordset_restricted = {w for w in wordset_restricted if word[i] not in {l for i, l in enumerate(w) if score[i] == '0'}}
+        #     if score[i] == "0":
+        #         wordset_restricted = {
+        #             w for w in wordset_restricted if word[i] not in {l for i, l in enumerate(w) if score[i] == "0"}
+        #         }
         # self.wordset = wordset_restricted
 
 

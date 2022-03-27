@@ -10,4 +10,5 @@ dependencies:
   - invoke>=1.6.0
   - isort>=5.9.3
   - numpy>=1.21.2
+  - pylint>=2.12.2
   - pytest>=6.2.5

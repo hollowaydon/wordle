@@ -1,8 +1,9 @@
-from wordle_improved import Wordle, parse_args
-from collections import Counter, defaultdict
 import pickle
-import time
 import random
+import time
+from collections import Counter, defaultdict
+
+from wordle_improved import Wordle, parse_args
 
 
 def get_best_guess(guess_dict, word_set):
@@ -17,7 +18,6 @@ def get_best_guess(guess_dict, word_set):
     else:
         guess = random.sample(best_k, 1)[0]
     return guess
-    
 
 
 def main():
@@ -29,32 +29,34 @@ def main():
     with open(args.play_file) as f:
         # TODO: can I just do solutions = f.split()???
         for line in f:
-            solutions.append(line[:args.len])
-    
+            solutions.append(line[: args.len])
+
     all_guesses = []
     weight_dict = dict()
     guesses_taken_dict = defaultdict(list)
     for solution in solutions:
-        wordle = Wordle(compute_table=False,
-                        word_len=args.len,
-                        wordfile=args.wordfile,
-                        first_dict_file=args.first_dict_file,
-                        second_dict_file=args.second_dict_file,
-                        weight=None)
+        wordle = Wordle(
+            compute_table=False,
+            word_len=args.len,
+            wordfile=args.wordfile,
+            first_dict_file=args.first_dict_file,
+            second_dict_file=args.second_dict_file,
+            weight=None,
+        )
 
-        no_guesses = 0 # how many guesses have been made so far?
-        guess = '' # initalise an incorrect guess for initial while check
-        g_a_table_done = False # keep track of once the guess answer table has been computed.
+        no_guesses = 0  # how many guesses have been made so far?
+        guess = ""  # initalise an incorrect guess for initial while check
+        g_a_table_done = False  # keep track of once the guess answer table has been computed.
         while guess != solution:
             no_guesses += 1
             if len(wordle.wordset) <= 0:
-                print('uh oh, no remaining words to guess')
+                print("uh oh, no remaining words to guess")
                 break
 
             elif len(wordle.wordset) == 1:
                 guess = list(wordle.wordset)[0]
 
-            elif no_guesses == 1: # first guess
+            elif no_guesses == 1:  # first guess
                 if wordle.first_guess:
                     guess = max(wordle.first_guess, key=wordle.first_guess.get)
                     # guess should be 'tares'
@@ -97,7 +99,7 @@ def main():
 
         all_guesses.append(no_guesses)
         # print()
-        
+
         guesses_taken_dict[no_guesses].append(solution)
         if no_guesses > 6:
             print(f"{solution} -- {no_guesses} guesses")
@@ -105,7 +107,7 @@ def main():
         weight_dict[solution] = no_guesses
 
     # save dict of results
-    with open('minimax_results.pickle', 'wb') as f:
+    with open("minimax_results.pickle", "wb") as f:
         pickle.dump(guesses_taken_dict, f)
     # save weight file.
     # if args.weight:

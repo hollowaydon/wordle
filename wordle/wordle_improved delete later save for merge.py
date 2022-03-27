@@ -45,14 +45,14 @@ class Wordle:
         try:
             with open(first_dict_file, "rb") as f:
                 self.first_guess = pickle.load(f)
-        except:
+        except FileNotFoundError:
             print("no first guess file found")
 
         # load dictionary of best second guesses for each score for first guess.
         try:
             with open(second_dict_file, "rb") as f:
                 self.second_guess = pickle.load(f)
-        except:
+        except FileNotFoundError:
             print("no second guess file found")
 
         self.guess_answer = []

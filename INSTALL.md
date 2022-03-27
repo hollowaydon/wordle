@@ -1,12 +1,12 @@
 ## Installing Wordle for Development
 
-Create a new conda environment.  Say you want to call the environment 'wordle_2'
+Create a new conda environment.  Say you want to call the environment 'wordle'
 
-    conda environment create -n wordle_2 --file environment.yml
+    conda env create -n wordle --file environment.yml
 
 Activate the new environemnt
 
-    conda activate wordle_2
+    conda activate wordle
 
 Install this package in "development mode", so you can go "import wordle"
 
